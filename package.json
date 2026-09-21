@@ -1,0 +1,29 @@
+{
+  "name": "chobitnews",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "個人向け GitHub 朝刊。本ディレクトリは本開発前の検証用。",
+  "scripts": {
+    "test": "vitest run",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "verify": "vitest run",
+    "verify:github": "tsx src/cli.ts github"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.22.0",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.14",
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
