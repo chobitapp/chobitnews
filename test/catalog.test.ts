@@ -1,3 +1,6 @@
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { DatabaseSync } from "node:sqlite";
 import { afterEach, describe, expect, it } from "vitest";
 import { createFixtureClients } from "../src/catalog/clients.ts";
@@ -19,6 +22,40 @@ describe("固定世界から OSS カタログを機械収集する", () => {
 
   afterEach(() => {
     db?.close();
+  });
+
+  it("同じ sqlite ファイルを二度開いても CREATE TABLE しない", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chobitnews-"));
+    const path = join(dir, "catalog.sqlite");
+    const first = openCatalogDb(path);
+    first.close();
+    const second = openCatalogDb(path);
+    try {
+      const row = second
+        .prepare(
+          `SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'`,
+        )
+        .get() as { name: string } | undefined;
+      expect(row?.name).toBe("users");
+    } finally {
+      second.close();
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("schema_migrations が無い既存 DB でも再オープンできる", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chobitnews-"));
+    const path = join(dir, "catalog.sqlite");
+    const first = openCatalogDb(path);
+    first.exec("DROP TABLE schema_migrations");
+    first.close();
+    const second = openCatalogDb(path);
+    try {
+      expect(second.prepare("SELECT id FROM users").all()).toEqual([]);
+    } finally {
+      second.close();
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("OAuth 済みの zaru と Beat 10 リポがシードされる", async () => {

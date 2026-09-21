@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
@@ -11,19 +11,57 @@ import type {
   UserRow,
 } from "./types.ts";
 
-const migrationPath = join(
+const migrationsDir = join(
   dirname(fileURLToPath(import.meta.url)),
   "..",
   "..",
   "migrations",
-  "0001_catalog.sql",
 );
 
 export function openCatalogDb(path = ":memory:"): DatabaseSync {
   const db = new DatabaseSync(path);
   db.exec("PRAGMA foreign_keys = ON");
-  db.exec(readFileSync(migrationPath, "utf8"));
+  applyCatalogMigrations(db);
   return db;
+}
+
+function applyCatalogMigrations(db: DatabaseSync): void {
+  db.exec(
+    `CREATE TABLE IF NOT EXISTS schema_migrations (
+       id TEXT PRIMARY KEY,
+       applied_at TEXT NOT NULL
+     )`,
+  );
+  // 初回 ingest で作った DB は schema_migrations を持たない。
+  const hasUsers = db
+    .prepare(
+      `SELECT 1 AS ok FROM sqlite_master WHERE type = 'table' AND name = 'users'`,
+    )
+    .get() as { ok: number } | undefined;
+  if (hasUsers) {
+    db.prepare(
+      `INSERT OR IGNORE INTO schema_migrations (id, applied_at) VALUES (?, ?)`,
+    ).run("0001_catalog.sql", new Date().toISOString());
+  }
+
+  const applied = new Set(
+    (
+      db.prepare(`SELECT id FROM schema_migrations`).all() as { id: string }[]
+    ).map((row) => row.id),
+  );
+  const files = readdirSync(migrationsDir)
+    .filter((name) => /^\d+_.*\.sql$/.test(name))
+    .sort();
+  const insert = db.prepare(
+    `INSERT INTO schema_migrations (id, applied_at) VALUES (?, ?)`,
+  );
+  for (const id of files) {
+    if (applied.has(id)) {
+      continue;
+    }
+    db.exec(readFileSync(join(migrationsDir, id), "utf8"));
+    insert.run(id, new Date().toISOString());
+  }
 }
 
 export interface CatalogStore {
