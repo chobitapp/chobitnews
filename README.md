@@ -18,8 +18,9 @@ OAuth アプリはまだ繋がない。GitHub アクセスの確認は、手元�
 
 ```sh
 pnpm install
-pnpm verify          # 三日分の連続テスト
+pnpm verify          # 三日分の連続テストと、同じ事実からのテンプレ号
 pnpm verify:github   # 自分の GitHub から直接依存を取り、同じ三日をシミュレート
+pnpm verify:copy     # 手書き1号と同じ事実をテンプレで号にする
 ```
 
 `verify:github` の3日目は GitHub を書き換えない。世代割れがあったパッケージを、検証用にメモリ上で揃える。

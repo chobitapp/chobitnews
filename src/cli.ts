@@ -1,10 +1,13 @@
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { renderTemplateEdition } from "./copy.ts";
 import { openDb } from "./db.ts";
 import { fetchInventory, readGithubToken } from "./github.ts";
 import { detectDrifts } from "./inventory.ts";
+import { generateItemWithLlm, readXaiApiKey } from "./llm.ts";
 import { runNight } from "./pipeline.ts";
+import { SAMPLE_EDITION_DATE, SAMPLE_FACTS } from "./sample-facts.ts";
 import type { InventoryRow } from "./types.ts";
 
 function alignOnePackage(
@@ -68,10 +71,34 @@ async function verifyGithub(): Promise<void> {
   }
 }
 
-const cmd = process.argv[2];
-if (cmd !== "github") {
-  console.error("usage: tsx src/cli.ts github");
-  process.exit(1);
+async function verifyCopy(): Promise<void> {
+  const edition = renderTemplateEdition(SAMPLE_EDITION_DATE, SAMPLE_FACTS);
+  console.log(edition.body.trimEnd());
+  console.log(`(items=${edition.items.length}, holds=${edition.holds})`);
+
+  if (process.argv.includes("--llm")) {
+    const key = readXaiApiKey();
+    if (!key) {
+      throw new Error(
+        "XAI_API_KEY がない。LLM 生成はスキップできないので終わる。",
+      );
+    }
+    const printed = SAMPLE_FACTS.filter((f) => f.decision === "print_new");
+    console.log("\n----- LLM -----");
+    for (const fact of printed) {
+      const item = await generateItemWithLlm(SAMPLE_EDITION_DATE, fact, key);
+      console.log(item);
+      console.log("");
+    }
+  }
 }
 
-await verifyGithub();
+const cmd = process.argv[2];
+if (cmd === "github") {
+  await verifyGithub();
+} else if (cmd === "copy") {
+  await verifyCopy();
+} else {
+  console.error("usage: tsx src/cli.ts github | copy [--llm]");
+  process.exit(1);
+}
