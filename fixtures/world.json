@@ -17,8 +17,8 @@
       },
       "repos": [
         {
-          "repo": "zaru/chobitnews",
-          "owner": "zaru",
+          "repo": "chobitapp/chobitnews",
+          "owner": "chobitapp",
           "included": 1,
           "reason": "personal_recent",
           "pushed_at": "2026-09-21T02:09:05Z"
@@ -90,7 +90,7 @@
     }
   ],
   "manifests": {
-    "zaru/chobitnews": {
+    "chobitapp/chobitnews": {
       "dependencies": {},
       "devDependencies": {
         "@biomejs/biome": "^2.5.14",

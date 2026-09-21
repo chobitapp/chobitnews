@@ -69,7 +69,7 @@ describe("固定世界から OSS カタログを機械収集する", () => {
 
     const repos = await store.listIncludedRepos("zaru");
     expect(repos).toHaveLength(10);
-    expect(repos.map((r) => r.repo)).toContain("zaru/chobitnews");
+    expect(repos.map((r) => r.repo)).toContain("chobitapp/chobitnews");
     expect(repos.map((r) => r.repo)).toContain("chobitapp/chobittube");
     expect(repos.every((r) => r.reason === "personal_recent")).toBe(true);
   });

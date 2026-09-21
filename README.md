@@ -1,6 +1,6 @@
 # chobitnews
 
-自分専用の GitHub 朝刊。このリポジトリは zaru-note から独立している。
+自分専用の GitHub 朝刊。GitHub は [`chobitapp/chobitnews`](https://github.com/chobitapp/chobitnews)。このリポジトリは zaru-note から独立している。
 
 いまは本開発前の検証だけを置く。Story の日をまたぐ連続は検証済み。次の段は、OAuth 済みユーザと対象リポを静的データで固定し、そこから OSS を機械収集して共有カタログに残すことである。結果は [docs/検証結果.md](docs/検証結果.md)。収集の設計は [docs/収集.md](docs/収集.md)。再開するときは検証結果を正本にする。Cloudflare 本番の流れは [docs/本番ワークフロー.md](docs/本番ワークフロー.md)。
 
