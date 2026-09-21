@@ -1,0 +1,81 @@
+{
+  "note": "収集段のオフライン検証用。npm / Releases / Advisories の応答を固定する。",
+  "npm": {
+    "wrangler": {
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/cloudflare/workers-sdk.git",
+        "directory": "packages/wrangler"
+      }
+    },
+    "hono": {
+      "repository": "https://github.com/honojs/hono.git"
+    },
+    "vitest": {
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/vitest-dev/vitest.git"
+      }
+    },
+    "typescript": {
+      "repository": {
+        "url": "https://github.com/microsoft/TypeScript.git"
+      }
+    },
+    "@biomejs/biome": {
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/biomejs/biome.git",
+        "directory": "packages/@biomejs/biome"
+      }
+    }
+  },
+  "releases": {
+    "cloudflare/workers-sdk": [
+      {
+        "tag_name": "wrangler@4.135.0",
+        "published_at": "2026-09-19T16:00:00Z",
+        "html_url": "https://github.com/cloudflare/workers-sdk/releases/tag/wrangler%404.135.0",
+        "body": "## wrangler@4.135.0\n\n- Flagship をローカルで評価できる"
+      },
+      {
+        "tag_name": "miniflare@4.20250913.0",
+        "published_at": "2026-09-13T12:00:00Z",
+        "html_url": "https://github.com/cloudflare/workers-sdk/releases/tag/miniflare%404.20250913.0",
+        "body": "miniflare は wrangler の項に入れない"
+      }
+    ],
+    "honojs/hono": [
+      {
+        "tag_name": "v4.13.8",
+        "published_at": "2026-09-18T00:00:00Z",
+        "html_url": "https://github.com/honojs/hono/releases/tag/v4.13.8",
+        "body": "hono 4.13.8"
+      }
+    ],
+    "vitest-dev/vitest": [
+      {
+        "tag_name": "v5.0.1",
+        "published_at": "2026-09-04T00:00:00Z",
+        "html_url": "https://github.com/vitest-dev/vitest/releases/tag/v5.0.1",
+        "body": "Vitest 5.0.1"
+      },
+      {
+        "tag_name": "v5.0.0",
+        "published_at": "2026-09-03T00:00:00Z",
+        "html_url": "https://github.com/vitest-dev/vitest/releases/tag/v5.0.0",
+        "body": "Vitest 5.0"
+      }
+    ]
+  },
+  "advisories": {
+    "hono": [
+      {
+        "ghsa_id": "GHSA-hxh3-vqpv-xpqv",
+        "published_at": "2026-09-04T00:00:00Z",
+        "summary": "hono/jsx の XSS",
+        "html_url": "https://github.com/advisories/GHSA-hxh3-vqpv-xpqv"
+      }
+    ]
+  }
+}

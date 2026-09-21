@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "verify": "vitest run",
     "verify:github": "tsx src/cli.ts github",
-    "verify:copy": "tsx src/cli.ts copy"
+    "verify:copy": "tsx src/cli.ts copy",
+    "verify:ingest": "tsx src/cli.ts ingest",
+    "verify:ingest:live": "tsx src/cli.ts ingest --live"
   },
   "devEngines": {
     "packageManager": {

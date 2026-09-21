@@ -1,6 +1,10 @@
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createFixtureClients, createLiveClients } from "./catalog/clients.ts";
+import { ingestUserOss } from "./catalog/ingest.ts";
+import { loadOssFixture, loadWorldFixture, seedWorld } from "./catalog/seed.ts";
+import { openCatalogDb, SqliteCatalogStore } from "./catalog/store.ts";
 import { renderTemplateEdition } from "./copy.ts";
 import { openDb } from "./db.ts";
 import { fetchInventory, readGithubToken } from "./github.ts";
@@ -93,12 +97,45 @@ async function verifyCopy(): Promise<void> {
   }
 }
 
+async function verifyIngest(live: boolean): Promise<void> {
+  const world = loadWorldFixture();
+  const dir = join(dirname(fileURLToPath(import.meta.url)), "..", "data");
+  mkdirSync(dir, { recursive: true });
+  const db = openCatalogDb(join(dir, "catalog.sqlite"));
+  const store = new SqliteCatalogStore(db);
+  await seedWorld(store, world);
+
+  const clients = live
+    ? createLiveClients(readGithubToken())
+    : createFixtureClients(world, loadOssFixture());
+  const stats = await ingestUserOss(store, clients, "zaru");
+  const packages = await store.listUserPackages("zaru");
+
+  console.log(`user: ${stats.userId}`);
+  console.log(`live: ${live}`);
+  console.log(
+    `repos=${stats.repos} manifests=${stats.manifests} packages=${stats.packages} mapped=${stats.mapped} unmapped=${stats.unmapped} releases=${stats.releases} advisories=${stats.advisories}`,
+  );
+  if (stats.incomplete.length > 0) {
+    console.log(`incomplete: ${stats.incomplete.join(", ")}`);
+  }
+  for (const name of packages) {
+    const pkg = await store.getPackage(name);
+    const repo = pkg?.githubRepo ?? "(unmapped)";
+    console.log(`  ${name}  ${repo}`);
+  }
+}
+
 const cmd = process.argv[2];
 if (cmd === "github") {
   await verifyGithub();
 } else if (cmd === "copy") {
   await verifyCopy();
+} else if (cmd === "ingest") {
+  await verifyIngest(process.argv.includes("--live"));
 } else {
-  console.error("usage: tsx src/cli.ts github | copy [--llm]");
+  console.error(
+    "usage: tsx src/cli.ts github | copy [--llm] | ingest [--live]",
+  );
   process.exit(1);
 }
