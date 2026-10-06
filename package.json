@@ -12,6 +12,7 @@
     "verify": "vitest run",
     "verify:github": "tsx src/cli.ts github",
     "verify:copy": "tsx src/cli.ts copy",
+    "verify:generate": "node --import tsx src/cli.ts generate --date 2026-09-21 --fixture fixtures/generate-night.json",
     "verify:ingest": "tsx src/cli.ts ingest",
     "verify:ingest:live": "tsx src/cli.ts ingest --live"
   },

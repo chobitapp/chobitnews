@@ -1,7 +1,7 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { DatabaseSync } from "node:sqlite";
+import { DatabaseSync } from "node:sqlite";
 import { afterEach, describe, expect, it } from "vitest";
 import { createFixtureClients } from "../src/catalog/clients.ts";
 import { deskNamesFromManifest, isDeniedPackage } from "../src/catalog/desk.ts";
@@ -43,15 +43,31 @@ describe("固定世界から OSS カタログを機械収集する", () => {
     }
   });
 
-  it("schema_migrations が無い既存 DB でも再オープンできる", () => {
+  it("schema_migrations が無い 0001 の旧 DB でも追加 migration を適用できる", () => {
     const dir = mkdtempSync(join(tmpdir(), "chobitnews-"));
     const path = join(dir, "catalog.sqlite");
-    const first = openCatalogDb(path);
-    first.exec("DROP TABLE schema_migrations");
+    const first = new DatabaseSync(path);
+    first.exec(
+      readFileSync(
+        new URL("../migrations/0001_catalog.sql", import.meta.url),
+        "utf8",
+      ),
+    );
     first.close();
     const second = openCatalogDb(path);
     try {
       expect(second.prepare("SELECT id FROM users").all()).toEqual([]);
+      expect(
+        second.prepare("SELECT package_name FROM package_copies").all(),
+      ).toEqual([]);
+      expect(second.prepare("SELECT date FROM editions").all()).toEqual([]);
+      expect(
+        second.prepare("SELECT id FROM schema_migrations ORDER BY id").all(),
+      ).toEqual([
+        { id: "0001_catalog.sql" },
+        { id: "0002_copies.sql" },
+        { id: "0003_paper.sql" },
+      ]);
     } finally {
       second.close();
       rmSync(dir, { recursive: true, force: true });

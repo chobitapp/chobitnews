@@ -1,4 +1,4 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createFixtureClients, createLiveClients } from "./catalog/clients.ts";
@@ -7,9 +7,13 @@ import { loadOssFixture, loadWorldFixture, seedWorld } from "./catalog/seed.ts";
 import { openCatalogDb, SqliteCatalogStore } from "./catalog/store.ts";
 import { renderTemplateEdition } from "./copy.ts";
 import { openDb } from "./db.ts";
+import { generateNight } from "./generate.ts";
+import { parseGenerateArgs } from "./generate-cli.ts";
+import { loadGenerateNight, readGenerateFixture } from "./generate-fixture.ts";
 import { fetchInventory, readGithubToken } from "./github.ts";
 import { detectDrifts } from "./inventory.ts";
-import { generateItemWithLlm, readXaiApiKey } from "./llm.ts";
+import { generateItemWithLlm, readLlmConfig } from "./llm.ts";
+import { SqlitePaperStore } from "./paper-store.ts";
 import { runNight } from "./pipeline.ts";
 import { SAMPLE_EDITION_DATE, SAMPLE_FACTS } from "./sample-facts.ts";
 import type { InventoryRow } from "./types.ts";
@@ -81,16 +85,11 @@ async function verifyCopy(): Promise<void> {
   console.log(`(items=${edition.items.length}, holds=${edition.holds})`);
 
   if (process.argv.includes("--llm")) {
-    const key = readXaiApiKey();
-    if (!key) {
-      throw new Error(
-        "XAI_API_KEY がない。LLM 生成はスキップできないので終わる。",
-      );
-    }
+    const cfg = readLlmConfig();
     const printed = SAMPLE_FACTS.filter((f) => f.decision === "print_new");
     console.log("\n----- LLM -----");
     for (const fact of printed) {
-      const item = await generateItemWithLlm(SAMPLE_EDITION_DATE, fact, key);
+      const item = await generateItemWithLlm(SAMPLE_EDITION_DATE, fact, cfg);
       console.log(item);
       console.log("");
     }
@@ -133,9 +132,38 @@ if (cmd === "github") {
   await verifyCopy();
 } else if (cmd === "ingest") {
   await verifyIngest(process.argv.includes("--live"));
+} else if (cmd === "generate") {
+  const values = parseGenerateArgs(process.argv.slice(3));
+  // 引数と必須 credentials を確認してから DB を開く。
+  const llm = values.llm ? readLlmConfig() : undefined;
+  const db = openCatalogDb(values.catalog ?? ":memory:");
+  try {
+    const store = new SqlitePaperStore(db);
+    if (values.fixture)
+      await loadGenerateNight(store, readGenerateFixture(values.fixture));
+    const { edition, stats } = await generateNight(store, values.date, {
+      userId: values.user,
+      llm,
+    });
+    if (values.output) {
+      mkdirSync(dirname(values.output), { recursive: true });
+      writeFileSync(values.output, edition.body);
+    }
+    process.stdout.write(edition.body);
+    console.error(
+      JSON.stringify({
+        msg: "generate.done",
+        date: values.date,
+        user: values.user,
+        ...stats,
+      }),
+    );
+  } finally {
+    db.close();
+  }
 } else {
   console.error(
-    "usage: tsx src/cli.ts github | copy [--llm] | ingest [--live]",
+    "usage: tsx src/cli.ts github | copy [--llm] | ingest [--live] | generate --date YYYY-MM-DD (--fixture PATH | --catalog PATH) [--llm] [--output PATH]",
   );
   process.exit(1);
 }

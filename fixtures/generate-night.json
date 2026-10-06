@@ -1,0 +1,118 @@
+{
+  "note": "2026-09-21 紙面サンプルの品質確認用固定データ。ライブの最新リリースを示すものではない。",
+  "edition_date": "2026-09-21",
+  "users": [
+    {
+      "id": "zaru",
+      "github_login": "zaru",
+      "github_id": "235650",
+      "packages": [
+        "hono",
+        "vitest",
+        "wrangler",
+        "zod",
+        "@biomejs/biome",
+        "typescript"
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "name": "hono",
+      "ecosystem": "npm",
+      "github_repo": "honojs/hono"
+    },
+    {
+      "name": "vitest",
+      "ecosystem": "npm",
+      "github_repo": "vitest-dev/vitest"
+    },
+    {
+      "name": "wrangler",
+      "ecosystem": "npm",
+      "github_repo": "cloudflare/workers-sdk"
+    },
+    {
+      "name": "zod",
+      "ecosystem": "npm",
+      "github_repo": "colinhacks/zod"
+    },
+    {
+      "name": "@biomejs/biome",
+      "ecosystem": "npm",
+      "github_repo": "biomejs/biome"
+    },
+    {
+      "name": "typescript",
+      "ecosystem": "npm",
+      "github_repo": "microsoft/TypeScript"
+    }
+  ],
+  "releases": [
+    {
+      "package_name": "wrangler",
+      "tag_name": "wrangler@4.135.0",
+      "published_at": "2026-09-18T00:00:00.000Z",
+      "html_url": "https://github.com/cloudflare/workers-sdk/releases/tag/wrangler%404.135.0",
+      "body": "- Flagship をローカルで評価する\n- 開発時の Flagship バインディングは既定で Miniflare のローカルストアを見る\n- 本番フラグから切り離してオフラインで動く\n- リモートを使うときは remote: true\n- wrangler flagship flags pull でリモートから種をまける"
+    },
+    {
+      "package_name": "vitest",
+      "tag_name": "v5.0.0",
+      "published_at": "2026-09-03T00:00:00.000Z",
+      "html_url": "https://github.com/vitest-dev/vitest/releases/tag/v5.0.0",
+      "body": "- 計測の主眼は速さ\n- vmThreads で 1.59s から 0.74s\n- Browser Mode と大きい isolated スイートが伸びる\n- forks + jsdom はほぼ横ばい\n- Vite >= 6.4 と Node >= 22.12 が要る"
+    },
+    {
+      "package_name": "vitest",
+      "tag_name": "v5.0.1",
+      "published_at": "2026-09-15T00:00:00.000Z",
+      "html_url": "https://github.com/vitest-dev/vitest/releases/tag/v5.0.1",
+      "body": "- UI のトレース表示を修正\n- list 失敗時は exit 1"
+    },
+    {
+      "package_name": "zod",
+      "tag_name": "v4.6.0",
+      "published_at": "2026-09-09T00:00:00.000Z",
+      "html_url": "https://github.com/colinhacks/zod/releases/tag/v4.6.0",
+      "body": "- `.validate()` は結果を作らない\n- 通るかだけを返し、無効入力で ZodError を組まない\n- z.compile() と組み合わせる\n- z.instanceof().properties() はインスタンスのプロパティをその場で見る"
+    },
+    {
+      "package_name": "zod",
+      "tag_name": "v4.6.5",
+      "published_at": "2026-09-13T00:00:00.000Z",
+      "html_url": "https://github.com/colinhacks/zod/releases/tag/v4.6.5",
+      "body": "- z.url() は URL.canParse() で無効 URL を拒否する\n- 再帰スキーマのメモリ保持を修正"
+    },
+    {
+      "package_name": "hono",
+      "tag_name": "v4.13.8",
+      "published_at": "2026-09-15T00:00:00.000Z",
+      "html_url": "https://github.com/honojs/hono/releases/tag/v4.13.8",
+      "body": "- JSX DOM の keyed update を高速化\n- Accept ヘッダの q=0 をスキップ"
+    },
+    {
+      "package_name": "@biomejs/biome",
+      "tag_name": "@biomejs/biome@2.5.14",
+      "published_at": "2026-09-16T00:00:00.000Z",
+      "html_url": "https://github.com/biomejs/biome/releases/tag/%40biomejs/biome%402.5.14",
+      "body": "- バグ修正約 50 と nursery ルール 14"
+    },
+    {
+      "package_name": "typescript",
+      "tag_name": "v7.0.0",
+      "published_at": "2026-07-08T00:00:00.000Z",
+      "html_url": "https://github.com/microsoft/TypeScript/releases/tag/v7.0.0",
+      "body": "- Go 移植の正式リリース"
+    }
+  ],
+  "advisories": [
+    {
+      "package_name": "hono",
+      "ghsa_id": "GHSA-hxh3-vqpv-xpqv",
+      "published_at": "2026-09-04T00:00:00.000Z",
+      "summary": "hono/jsx の XSS。子や fallback の素の文字列をエスケープせず出していた",
+      "html_url": "https://github.com/advisories/GHSA-hxh3-vqpv-xpqv"
+    }
+  ]
+}
