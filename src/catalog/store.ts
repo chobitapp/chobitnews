@@ -59,8 +59,15 @@ function applyCatalogMigrations(db: DatabaseSync): void {
     if (applied.has(id)) {
       continue;
     }
-    db.exec(readFileSync(join(migrationsDir, id), "utf8"));
-    insert.run(id, new Date().toISOString());
+    db.exec("BEGIN");
+    try {
+      db.exec(readFileSync(join(migrationsDir, id), "utf8"));
+      insert.run(id, new Date().toISOString());
+      db.exec("COMMIT");
+    } catch (err) {
+      db.exec("ROLLBACK");
+      throw err;
+    }
   }
 }
 
@@ -83,7 +90,7 @@ export interface CatalogStore {
 }
 
 export class SqliteCatalogStore implements CatalogStore {
-  constructor(private readonly db: DatabaseSync) {}
+  constructor(protected readonly db: DatabaseSync) {}
 
   async upsertUser(user: UserRow): Promise<void> {
     this.db
