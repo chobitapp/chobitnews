@@ -1,0 +1,13 @@
+# mise.local.toml にコピーして使う。実際のキーはこの example に書かない。
+# mise.local.toml は Git 管理対象外。値はローカルに平文で保存される。
+[env]
+# LLM 生成に必要。対象 Account の AI Gateway Run トークンを設定する。
+# CLOUDFLARE_ACCOUNT_ID = ""
+# CLOUDFLARE_API_TOKEN = ""
+
+# GitHub のライブ収集用。省略時は既存の gh auth を使う。
+# GITHUB_TOKEN = ""
+
+# 必要な場合だけ mise.toml の既定値を上書きする。
+# LLM_GATEWAY_ID = "chobitnews"
+# LLM_MODEL = "grok-4.6"

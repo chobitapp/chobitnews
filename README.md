@@ -16,11 +16,34 @@ OAuth アプリはまだ繋がない。GitHub アクセスの確認は、手元�
 
 ## 実行
 
-Node 24 と pnpm を使う。初回はこのリポジトリで次を実行すれば、APIキーや既存DBなしで品質確認用の朝刊を読める。
+Node 24 と pnpm を使う。`mise.toml` でバージョンと LLM の既定値を管理する。初回はこのリポジトリで次を実行すれば、APIキーや既存DBなしで品質確認用の朝刊を読める。
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm verify:generate      # 4項+2件の見送りを表示
+mise trust mise.toml
+mise install
+mise exec -- pnpm install --frozen-lockfile
+mise exec -- pnpm verify:generate      # 4項+2件の見送りを表示
+```
+
+### ローカルの API キー設定
+
+キーは Git 管理対象外の `mise.local.toml` の `[env]` に置く。初回だけひな形をコピーする（既存ファイルは上書きしない）。ローカルファイルの値は平文で保存されるので、権限を自分だけの読み書きにする。
+
+```sh
+cp -n mise.local.toml.example mise.local.toml
+chmod 600 mise.local.toml
+mise trust mise.local.toml
+mise set --file mise.local.toml --prompt CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_TOKEN
+# GitHub は gh auth login 済みなら追加設定不要。トークンを指定する場合だけ:
+mise set --file mise.local.toml --prompt GITHUB_TOKEN
+```
+
+`--prompt` は入力を隠し、キーをコマンド履歴へ残さない。`--file mise.local.toml` は必ず指定する。単に `mise set` とすると共有の `mise.toml` へ書き込む。`CLOUDFLARE_API_TOKEN` は対象 Account の AI Gateway Run 用。xAI キーは Gateway の BYOK に保存するため、このファイルには不要。
+
+実行時は `mise exec --` を付ければローカル設定が環境変数として渡る。シェルで `mise activate zsh` を設定済みなら、このディレクトリで通常の `pnpm` / `node` コマンドにも反映される。
+
+```sh
+mise exec -- node --import tsx src/cli.ts generate --date 2026-09-21 --fixture fixtures/generate-night.json --llm
 ```
 
 その他の検証:

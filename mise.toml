@@ -1,0 +1,7 @@
+[tools]
+node = "24"
+pnpm = "11.22.0"
+
+[env]
+LLM_GATEWAY_ID = "chobitnews"
+LLM_MODEL = "grok-4.6"

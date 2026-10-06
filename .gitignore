@@ -1,5 +1,10 @@
 node_modules
+.pnpm-store
 data
 .env
+mise.local.toml
+mise.*.local.toml
+.mise.local.toml
+.mise.*.local.toml
 .DS_Store
 *.sqlite
